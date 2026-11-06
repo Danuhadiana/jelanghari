@@ -4,6 +4,26 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
+// Detect serverless environment (Vercel or non-writable local storage)
+$isServerless = isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || getenv('VERCEL') || !is_writable(dirname(__DIR__) . '/storage/framework/views');
+
+if ($isServerless) {
+    $storagePath = '/tmp/storage';
+    foreach ([
+        $storagePath,
+        $storagePath . '/framework',
+        $storagePath . '/framework/views',
+        $storagePath . '/framework/sessions',
+        $storagePath . '/framework/cache',
+        $storagePath . '/framework/cache/data',
+        $storagePath . '/logs',
+    ] as $dir) {
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+    }
+}
+
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
@@ -32,26 +52,15 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        // Hardened error reporting: Prevent internal path / SQL query disclosure in production
+        // Hardened error reporting
     })->create();
 
-// Always use /tmp/storage in serverless environment (when storage is read-only or VERCEL is active)
-if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || getenv('VERCEL') || !is_writable(dirname(__DIR__) . '/storage')) {
-    $storagePath = '/tmp/storage';
-    foreach ([
-        $storagePath,
-        $storagePath . '/framework',
-        $storagePath . '/framework/views',
-        $storagePath . '/framework/sessions',
-        $storagePath . '/framework/cache',
-        $storagePath . '/framework/cache/data',
-        $storagePath . '/logs',
-    ] as $dir) {
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0755, true);
-        }
-    }
-    $app->useStoragePath($storagePath);
+if ($isServerless) {
+    $app->useStoragePath('/tmp/storage');
+    $app->instance('path.storage', '/tmp/storage');
+    $app['config']->set('view.compiled', '/tmp/storage/framework/views');
+    $app['config']->set('session.files', '/tmp/storage/framework/sessions');
+    $app['config']->set('cache.stores.file.path', '/tmp/storage/framework/cache/data');
 }
 
 return $app;
