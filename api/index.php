@@ -12,6 +12,17 @@ if (!is_dir($storagePath)) {
     @mkdir($storagePath . '/logs', 0755, true);
 }
 
+// Setup SQLite database if on Vercel and no external DB configured
+if (!getenv('DB_CONNECTION')) {
+    $tmpDb = '/tmp/database.sqlite';
+    $sourceDb = __DIR__ . '/../database/database.sqlite';
+    if (!file_exists($tmpDb) && file_exists($sourceDb)) {
+        @copy($sourceDb, $tmpDb);
+    }
+    putenv('DB_CONNECTION=sqlite');
+    putenv("DB_DATABASE={$tmpDb}");
+}
+
 // Fallbacks for serverless execution
 if (!getenv('APP_KEY')) {
     putenv('APP_KEY=base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=');
