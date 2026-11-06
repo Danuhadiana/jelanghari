@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --jh-black: #0A0A0A;
+    --jh-charcoal: #1C1C1C;
+    --jh-stone: #F5F5F4;
+    --jh-marble: #FAFAF9;
+    --jh-gray-100: #E7E5E4;
+    --jh-gray-300: #D6D3D1;
+    --jh-gray-500: #78716C;
+    --jh-gray-700: #44403C;
+    --jh-white: #FFFFFF;
+    --jh-accent: #8B7355;
+    --jh-success: #16A34A;
+    --jh-warning: #F59E0B;
+    --jh-danger: #DC2626;
+    --jh-info: #2563EB;
+  }
+
+  html.dark {
+    color-scheme: dark;
+    --jh-black: #FFFFFF;
+    --jh-charcoal: #E4E4E7;
+    --jh-stone: #09090B;
+    --jh-marble: #18181B;
+    --jh-gray-100: #27272A;
+    --jh-gray-300: #3F3F46;
+    --jh-gray-500: #A1A1AA;
+    --jh-gray-700: #D4D4D8;
+    --jh-white: #18181B;
+  }
+
+  body {
+    background-color: var(--jh-stone);
+    color: var(--jh-black);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  html.dark body {
+    background-color: #09090B;
+    color: #F4F4F5;
+  }
+}
+
+/* Global Dark Mode overrides for legacy hardcoded colors */
+html.dark .bg-jh-stone,
+html.dark .bg-\[\#FAFAF9\],
+html.dark .bg-\[\#F8F9FA\] {
+  background-color: #09090b !important;
+}
+
+html.dark .bg-jh-marble,
+html.dark .bg-card,
+html.dark .bg-jh-white {
+  background-color: #18181b !important;
+  color: #f4f4f5;
+}
+
+html.dark .text-jh-black,
+html.dark .text-\[\#0A0A0A\] {
+  color: #ffffff !important;
+}
+
+html.dark .text-jh-gray-500,
+html.dark .text-\[\#78716C\] {
+  color: #a1a1aa !important;
+}
+
+html.dark .text-jh-gray-700,
+html.dark .text-\[\#44403C\] {
+  color: #d4d4d8 !important;
+}
+
+html.dark .border-jh-gray-100,
+html.dark .border-\[\#E7E5E4\] {
+  border-color: #27272a !important;
+}
+
+html.dark .divide-jh-gray-100 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-\[\#E7E5E4\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #27272a !important;
+}
+
+/* Universal Dark Mode Safety Net: prevents any white leakage */
+html.dark .bg-white:not([class*="dark:"]):not(button):not([data-keep-light]) {
+  background-color: #18181b !important;
+  color: #f4f4f5;
+}
+
+html.dark .border-zinc-200:not([class*="dark:"]) {
+  border-color: #27272a !important;
+}
+
+html.dark .border-zinc-300:not([class*="dark:"]) {
+  border-color: #3f3f46 !important;
+}
+
+html.dark .bg-zinc-50:not([class*="dark:"]):not(button) {
+  background-color: #121215 !important;
+}
+
+html.dark .bg-zinc-100:not([class*="dark:"]):not(button) {
+  background-color: #27272a !important;
+}
+
+html.dark .text-zinc-950:not([class*="dark:"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-white"]):not([class*="bg-emerald"]):not([class*="bg-lime"]):not(button),
+html.dark .text-zinc-900:not([class*="dark:"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-white"]):not([class*="bg-emerald"]):not([class*="bg-lime"]):not(button) {
+  color: #f4f4f5 !important;
+}
+
+html.dark .text-zinc-800:not([class*="dark:"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-white"]):not([class*="bg-emerald"]):not(button) {
+  color: #e4e4e7 !important;
+}
+
+html {
+  color-scheme: light;
+  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-width: thin;
+  overflow-x: hidden;
+}
+
+html.dark {
+  color-scheme: dark;
+  scrollbar-color: #3f3f46 #09090b;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Base Light Mode Scrollbar (Subtle, sleek, transparent track - no dark ugly blocks) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* Dark Mode Scrollbar (Scoped strictly to dark mode) */
+html.dark ::-webkit-scrollbar-track {
+  background: #09090b;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border: 1px solid #09090b;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Utilities to completely hide scrollbars where undesirable (e.g. horizontal chips) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

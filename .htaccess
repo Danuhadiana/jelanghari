@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Cegah akses ke file tersembunyi seperti .env
+    RewriteRule ^\.(.*)$ - [F,L]
+    
+    # Arahkan semua traffic ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
