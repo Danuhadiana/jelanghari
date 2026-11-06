@@ -30,9 +30,12 @@
     }
   ],
   "env": {
+    "VERCEL": "1",
     "APP_ENV": "production",
-    "APP_DEBUG": "false",
+    "APP_DEBUG": "true",
     "APP_KEY": "base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=",
+    "DB_CONNECTION": "sqlite",
+    "DB_DATABASE": "/tmp/database.sqlite",
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "SESSION_DRIVER": "cookie",
     "CACHE_STORE": "array",

@@ -35,8 +35,23 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // Hardened error reporting: Prevent internal path / SQL query disclosure in production
     })->create();
 
-if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL'])) {
-    $app->useStoragePath('/tmp/storage');
+// Always use /tmp/storage in serverless environment (when storage is read-only or VERCEL is active)
+if (isset($_SERVER['VERCEL']) || isset($_ENV['VERCEL']) || getenv('VERCEL') || !is_writable(dirname(__DIR__) . '/storage')) {
+    $storagePath = '/tmp/storage';
+    foreach ([
+        $storagePath,
+        $storagePath . '/framework',
+        $storagePath . '/framework/views',
+        $storagePath . '/framework/sessions',
+        $storagePath . '/framework/cache',
+        $storagePath . '/framework/cache/data',
+        $storagePath . '/logs',
+    ] as $dir) {
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+    }
+    $app->useStoragePath($storagePath);
 }
 
 return $app;

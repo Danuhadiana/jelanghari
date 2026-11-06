@@ -1,35 +1,52 @@
 <?php
 
-// Ensure serverless temporary storage is ready for Vercel
+// Prepare serverless temporary storage
 $storagePath = '/tmp/storage';
-if (!is_dir($storagePath)) {
-    @mkdir($storagePath, 0755, true);
-    @mkdir($storagePath . '/framework', 0755, true);
-    @mkdir($storagePath . '/framework/views', 0755, true);
-    @mkdir($storagePath . '/framework/sessions', 0755, true);
-    @mkdir($storagePath . '/framework/cache', 0755, true);
-    @mkdir($storagePath . '/framework/cache/data', 0755, true);
-    @mkdir($storagePath . '/logs', 0755, true);
-}
-
-// Setup SQLite database if on Vercel and no external DB configured
-if (!getenv('DB_CONNECTION')) {
-    $tmpDb = '/tmp/database.sqlite';
-    $sourceDb = __DIR__ . '/../database/database.sqlite';
-    if (!file_exists($tmpDb) && file_exists($sourceDb)) {
-        @copy($sourceDb, $tmpDb);
+foreach ([
+    $storagePath,
+    $storagePath . '/framework',
+    $storagePath . '/framework/views',
+    $storagePath . '/framework/sessions',
+    $storagePath . '/framework/cache',
+    $storagePath . '/framework/cache/data',
+    $storagePath . '/logs',
+] as $dir) {
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
     }
-    putenv('DB_CONNECTION=sqlite');
-    putenv("DB_DATABASE={$tmpDb}");
 }
 
-// Fallbacks for serverless execution
-if (!getenv('APP_KEY')) {
-    putenv('APP_KEY=base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=');
+// Copy SQLite database to writable /tmp
+$tmpDb = '/tmp/database.sqlite';
+$sourceDb = dirname(__DIR__) . '/database/database.sqlite';
+if (!file_exists($tmpDb) && file_exists($sourceDb)) {
+    @copy($sourceDb, $tmpDb);
 }
-putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-putenv('SESSION_DRIVER=cookie');
-putenv('CACHE_STORE=array');
-putenv('LOG_CHANNEL=stderr');
+
+// Force env variables into both putenv, $_ENV, and $_SERVER
+$serverlessEnv = [
+    'VERCEL' => '1',
+    'APP_ENV' => 'production',
+    'APP_DEBUG' => 'true',
+    'APP_KEY' => 'base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=',
+    'DB_CONNECTION' => 'sqlite',
+    'DB_DATABASE' => $tmpDb,
+    'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
+    'SESSION_DRIVER' => 'cookie',
+    'CACHE_STORE' => 'array',
+    'LOG_CHANNEL' => 'stderr',
+];
+
+foreach ($serverlessEnv as $key => $val) {
+    if (!getenv($key)) {
+        putenv("{$key}={$val}");
+    }
+    if (!isset($_ENV[$key])) {
+        $_ENV[$key] = $val;
+    }
+    if (!isset($_SERVER[$key])) {
+        $_SERVER[$key] = $val;
+    }
+}
 
 require __DIR__ . '/../public/index.php';
