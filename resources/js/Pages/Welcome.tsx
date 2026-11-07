@@ -2539,15 +2539,15 @@ export default function Welcome({
             </p>
 
             {/* Realtime Live Status Card in Footer */}
-            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 space-y-2">
+            <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Status Operasional</span>
                 {isStoreOpen ? (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
+                  <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] leading-tight">
                     Buka Sekarang
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-500/40 text-red-700 dark:text-red-400 font-bold text-[10px]">
+                  <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-[11px] leading-tight">
                     Sedang Tutup
                   </span>
                 )}
@@ -2556,8 +2556,8 @@ export default function Welcome({
                 <Clock size={13} className="text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>Setiap Hari: <strong className="text-zinc-900 dark:text-white font-mono">{jamBuka} – {jamTutup} WIB</strong></span>
               </div>
-              <p className="text-[10px] text-zinc-500">
-                &bull; Sinkronisasi realtime terhubung langsung dengan sistem kasir POS kafe.
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+                Sinkronisasi realtime terhubung langsung dengan sistem kasir POS kafe.
               </p>
             </div>
           </div>
