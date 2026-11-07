@@ -31,8 +31,10 @@ try {
     // Copy SQLite database to writable /tmp
     $tmpDb = '/tmp/database.sqlite';
     $sourceDb = dirname(__DIR__) . '/database/database.sqlite';
-    if (!file_exists($tmpDb) && file_exists($sourceDb)) {
-        @copy($sourceDb, $tmpDb);
+    if (file_exists($sourceDb)) {
+        if (!file_exists($tmpDb) || filemtime($sourceDb) > filemtime($tmpDb) || filesize($tmpDb) < filesize($sourceDb)) {
+            @copy($sourceDb, $tmpDb);
+        }
     }
 
     // Force serverless environment variables into putenv, $_ENV, and $_SERVER
