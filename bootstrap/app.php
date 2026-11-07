@@ -52,21 +52,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
-            http_response_code(500);
-            header('Content-Type: text/html; charset=utf-8');
-            echo '<div style="font-family:system-ui,sans-serif;padding:32px;background:#09090b;color:#f4f4f5;min-height:100vh;">';
-            echo '<h1 style="color:#ef4444;margin-top:0;">Root Exception Captured:</h1>';
-            echo '<div style="background:#18181b;padding:16px;border-radius:8px;border:1px solid #27272a;margin-bottom:20px;">';
-            echo '<p style="margin:0 0 8px 0;font-size:16px;"><strong>Class:</strong> <span style="color:#fbbf24;">' . get_class($e) . '</span></p>';
-            echo '<p style="margin:0 0 8px 0;font-size:16px;"><strong>Message:</strong> <span style="color:#f87171;">' . htmlspecialchars($e->getMessage()) . '</span></p>';
-            echo '<p style="margin:0;font-size:13px;color:#a1a1aa;"><strong>Location:</strong> ' . htmlspecialchars($e->getFile()) . ' : ' . $e->getLine() . '</p>';
-            echo '</div>';
-            echo '<h3 style="color:#38bdf8;">Stack Trace:</h3>';
-            echo '<pre style="background:#18181b;padding:16px;border-radius:8px;overflow-x:auto;color:#7dd3fc;font-size:12px;line-height:1.5;border:1px solid #27272a;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
-            echo '</div>';
-            exit;
-        });
+        // Handled cleanly by Laravel & Inertia
     })->create();
 
 if ($isServerless) {
