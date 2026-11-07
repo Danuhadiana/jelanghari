@@ -687,7 +687,6 @@ export default function Welcome({
   // ── HEADLINE & EVENT AUTO SLIDER STATE (DYNAMIC FROM SETTINGS) ──
   const [currentSlide, setCurrentSlide] = useState(0);
   const [sliderPaused, setSliderPaused] = useState(false);
-  const [selectedBannerDetail, setSelectedBannerDetail] = useState<any | null>(null);
 
   const bannerSlides = useMemo(() => {
     let rawBanners: any[] = [];
@@ -781,8 +780,10 @@ export default function Welcome({
               window.open(b.action_url, '_blank');
             } else if (b.action_type === 'menu') {
               menuSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            } else if (b.action_url) {
+              window.location.href = b.action_url;
             } else {
-              setSelectedBannerDetail(b);
+              menuSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
             }
           },
         };
@@ -2198,7 +2199,7 @@ export default function Welcome({
             return (
               <div
                 key={slide.id}
-                onClick={() => setSelectedBannerDetail(slide.rawItem)}
+                onClick={slide.onAction}
                 className={`absolute inset-0 transition-opacity duration-700 ease-in-out cursor-pointer ${
                   isActive ? 'opacity-100 pointer-events-auto z-10' : 'opacity-0 pointer-events-none z-0'
                 }`}
@@ -2224,14 +2225,10 @@ export default function Welcome({
                 {/* Slide Content */}
                 <div className="relative h-full flex flex-col justify-between p-5 sm:p-8 max-w-3xl">
                   <div>
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase border shadow-md ${slide.badgeColor}`}>
-                      <Sparkles size={12} />
-                      {slide.badge}
-                    </span>
-                    <h3 className="text-lg sm:text-2xl md:text-3xl font-extrabold text-white mt-2.5 leading-snug drop-shadow-md">
+                    <h3 className="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-snug drop-shadow-md">
                       {slide.title}
                     </h3>
-                    <p className="text-zinc-200 text-xs sm:text-sm mt-1.5 line-clamp-2 sm:line-clamp-none max-w-xl leading-relaxed drop-shadow">
+                    <p className="text-zinc-200 text-xs sm:text-sm mt-2 line-clamp-2 sm:line-clamp-none max-w-xl leading-relaxed drop-shadow">
                       {slide.desc}
                     </p>
                   </div>
@@ -2240,21 +2237,10 @@ export default function Welcome({
                     <button
                       type="button"
                       onClick={slide.onAction}
-                      className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs sm:text-sm transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
+                      className="px-5 py-2.5 rounded-xl bg-white hover:bg-zinc-100 text-zinc-950 font-bold text-xs sm:text-sm transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
                     >
                       <span>{slide.actionText}</span>
                       <ArrowRight size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedBannerDetail(slide.rawItem);
-                      }}
-                      className="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-black/45 hover:bg-black/70 backdrop-blur-md border border-white/25 text-white font-semibold text-xs transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-md"
-                    >
-                      <Sparkles size={13} className="text-amber-400" />
-                      <span>{dict.bacaDetail}</span>
                     </button>
                     {idx === 0 && (
                       <span className="text-[11px] text-zinc-300 hidden sm:inline-flex items-center gap-1 font-medium bg-black/40 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/10">
@@ -5052,121 +5038,6 @@ export default function Welcome({
                 className="w-full py-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 text-xs font-medium transition cursor-pointer"
               >
                 Lanjut Lihat-Lihat Menu
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* ── 18. MODAL POP-UP DETAIL KONTEN BANNER & EVENT (HIGH AESTHETICS) ── */}
-      {selectedBannerDetail && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-fade"
-          onClick={() => setSelectedBannerDetail(null)}
-        >
-          <div
-            className="w-full max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col my-auto max-h-[90vh] animate-in zoom-in-95 duration-150"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Poster Header */}
-            <div className="relative h-52 sm:h-60 w-full bg-zinc-950 overflow-hidden shrink-0">
-              <img
-                src={selectedBannerDetail.image}
-                alt={selectedBannerDetail.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/30" />
-
-              {/* Close Button on Top Right */}
-              <button
-                type="button"
-                onClick={() => setSelectedBannerDetail(null)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition"
-              >
-                <X size={16} />
-              </button>
-
-              {/* Category Badge on Top-Left */}
-              <div className="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 z-10">
-                <span className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider bg-black/70 backdrop-blur-md text-amber-300 border border-amber-400/40 shadow-md">
-                  {selectedBannerDetail.badge || 'PROMO'}
-                </span>
-              </div>
-
-              {/* Title & Date Overlay on Poster Bottom */}
-              <div className="absolute bottom-3.5 left-4 right-4 sm:bottom-4 sm:left-6 sm:right-6 z-10 space-y-1">
-                {selectedBannerDetail.tanggal_waktu && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-emerald-500/90 text-white shadow-xs">
-                    <Calendar size={12} />
-                    <span>{selectedBannerDetail.tanggal_waktu}</span>
-                  </span>
-                )}
-                <h3 className="text-base sm:text-xl font-extrabold text-white leading-snug drop-shadow-md">
-                  {selectedBannerDetail.title}
-                </h3>
-              </div>
-            </div>
-
-            {/* Modal Body / Full Story Content */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs sm:text-sm">
-              <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800 space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold border-b border-zinc-200/60 dark:border-zinc-800 pb-2">
-                  <span className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                    <Sparkles size={13} className="text-emerald-500" />
-                    <span>{dict.detailBannerTitle}</span>
-                  </span>
-                  <span>Jelang Hari Official</span>
-                </div>
-                <p className="text-xs text-zinc-600 dark:text-zinc-400 font-medium leading-relaxed italic">
-                  "{selectedBannerDetail.desc}"
-                </p>
-              </div>
-
-              <div className="space-y-3 leading-relaxed text-zinc-700 dark:text-zinc-300 font-normal whitespace-pre-line text-xs sm:text-sm">
-                {selectedBannerDetail.konten_lengkap || selectedBannerDetail.desc}
-              </div>
-
-              {/* Special Facilities highlight for Nobar/Event */}
-              {selectedBannerDetail.badge?.toLowerCase().includes('nobar') && (
-                <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
-                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
-                    <Tv size={15} className="text-emerald-500 shrink-0" />
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">Layar 150" HD Jernih</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center gap-2">
-                    <Zap size={15} className="text-amber-500 shrink-0" />
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">Sound Menggelegar</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer Actions */}
-            <div className="p-4 sm:p-5 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end gap-2.5">
-              <button
-                type="button"
-                onClick={() => setSelectedBannerDetail(null)}
-                className="px-4 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-bold transition"
-              >
-                {dict.tutup}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const b = selectedBannerDetail;
-                  setSelectedBannerDetail(null);
-                  if (b.action_type === 'reservasi') {
-                    setReservationOpen(true);
-                  } else if (b.action_type === 'link' && b.action_url) {
-                    window.open(b.action_url, '_blank');
-                  } else {
-                    menuSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-600/30"
-              >
-                <span>{selectedBannerDetail.action_text || dict.bacaDetail}</span>
-                <ArrowRight size={14} />
               </button>
             </div>
           </div>
