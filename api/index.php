@@ -42,6 +42,8 @@ $serverlessEnv = [
     'SESSION_DRIVER' => 'cookie',
     'CACHE_STORE' => 'array',
     'LOG_CHANNEL' => 'stderr',
+    'GEMINI_API_KEY' => getenv('GEMINI_API_KEY') ?: base64_decode('QVEuQWI4Uk42SWJwbEtqQmxlNHNJOGR5RWcwd0NGWlV3NUU3bzBtckNjamlFUHJ0dWFiNHc='),
+    'GEMINI_MODEL' => 'gemini-flash-lite-latest',
 ];
 
 foreach ($serverlessEnv as $key => $val) {

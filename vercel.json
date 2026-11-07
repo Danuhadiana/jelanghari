@@ -32,7 +32,7 @@
   "env": {
     "VERCEL": "1",
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
     "APP_KEY": "base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=",
     "APP_CONFIG_CACHE": "/tmp/config.php",
     "APP_EVENTS_CACHE": "/tmp/events.php",
@@ -44,6 +44,7 @@
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "SESSION_DRIVER": "cookie",
     "CACHE_STORE": "array",
-    "LOG_CHANNEL": "stderr"
+    "LOG_CHANNEL": "stderr",
+    "GEMINI_MODEL": "gemini-flash-lite-latest"
   }
 }

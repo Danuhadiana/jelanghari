@@ -251,7 +251,7 @@ export default function Index({
 
         if (q.length <= 4 || q.includes('halo') || q.includes('hai') || q === 'p') {
             return {
-                reply: `Jelang Hari Copilot siap membantu. Ringkasan operasional terkini:\n• Omset Hari Ini: ${salesFmt} (${notaFmt} transaksi, AOV ${aovFmt})\n• Okupansi Meja: ${metrics?.meja_terisi || 0} dari ${metrics?.total_meja || 0} meja terisi\n• Status Stok: ${metrics?.stok_menipis || 0} bahan mendekati batas minimum\n\nSilakan ajukan pertanyaan seputar tutorial kasir, KDS, stok bahan, resep BOM, laporan keuangan, atau istilah kafe.`,
+                reply: `Jelang Hari Copilot siap membantu. Ringkasan operasional terkini:\n• Omset Hari Ini: ${salesFmt} (${notaFmt} transaksi, AOV ${aovFmt})\n• Status Toko: Siap melayani pesanan kasir dan antrean KDS\n\nSilakan ajukan pertanyaan seputar tutorial kasir, KDS, stok bahan, resep BOM, laporan keuangan, atau istilah kafe.`,
                 statusBadge: 'Operasional Toko',
                 actionLink: { label: 'Buka POS Kasir', url: '/kasir' }
             };

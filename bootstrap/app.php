@@ -38,10 +38,12 @@ $app = Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Strict CSRF Defense: Only exempt verified external payment webhooks
+        // Strict CSRF Defense: Only exempt verified external payment webhooks and stateless copilot
         $middleware->validateCsrfTokens(except: [
             'api/midtrans/notification',
             '/api/midtrans/notification',
+            'dashboard/ai-chat',
+            '/dashboard/ai-chat',
         ]);
 
         $middleware->trustProxies(at: '*');
