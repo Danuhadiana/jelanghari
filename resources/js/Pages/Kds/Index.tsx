@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { 
     Clock, Coffee, Utensils, CheckCircle, RefreshCw, ArrowLeft, 
     Check, Sparkles, MoveRight, Eye, X, AlertCircle, ChefHat, 
@@ -263,6 +263,15 @@ export default function Index({
     allProduks = [],
     customSops = {},
 }: Props) {
+    const { auth } = usePage<any>().props;
+    const userRole = (typeof auth?.user?.role === 'string' ? auth.user.role : (auth?.user?.role_slug || auth?.user?.role?.slug || '')).toLowerCase();
+    const isOwnerOrManager = ['owner', 'manager'].includes(userRole);
+    const isKasir = userRole === 'kasir';
+
+    const backUrl = isOwnerOrManager ? '/dashboard' : (isKasir ? '/kasir' : '/');
+    const backLabel = isOwnerOrManager ? 'Dashboard' : (isKasir ? 'Kasir POS' : 'Beranda');
+    const backTitle = isOwnerOrManager ? 'Kembali ke Dashboard' : (isKasir ? 'Kembali ke Kasir POS' : 'Kembali ke Beranda Kafe');
+
     const [orders, setOrders] = useState<Order[]>(initialOrders || []);
     const [historyOrders, setHistoryOrders] = useState<Order[]>(initialHistoryOrders || []);
     const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
@@ -1028,16 +1037,16 @@ export default function Index({
                     <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3 min-w-0">
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                             <Link
-                                href="/dashboard"
+                                href={backUrl}
                                 className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition border shrink-0 ${
                                     isDarkMode 
                                         ? 'bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border-zinc-800' 
                                         : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border-zinc-200'
                                 }`}
-                                title="Kembali ke Dashboard"
+                                title={backTitle}
                             >
                                 <ArrowLeft className="w-3.5 h-3.5" /> 
-                                <span className="hidden sm:inline">Dashboard</span>
+                                <span className="hidden sm:inline">{backLabel}</span>
                             </Link>
 
                             <img

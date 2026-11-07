@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Sparkles, X, Send, Coffee, ArrowRight, RotateCcw, MessageSquare, BookOpen, AlertCircle } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import FormattedAiText from './FormattedAiText';
 
 interface Props {
@@ -18,6 +18,9 @@ interface ChatMessage {
 }
 
 export default function JelangAiModal({ isOpen, onClose }: Props) {
+    const { auth } = usePage<any>().props;
+    const userRole = (typeof auth?.user?.role === 'string' ? auth.user.role : (auth?.user?.role_slug || auth?.user?.role?.slug || '')).toLowerCase();
+    const isOwnerOrManager = ['owner', 'manager'].includes(userRole);
     const [prompt, setPrompt] = useState('');
     const [isThinking, setIsThinking] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
@@ -306,18 +309,34 @@ export default function JelangAiModal({ isOpen, onClose }: Props) {
 
                                     <FormattedAiText text={msg.text} isUser={isUser} />
 
-                                    {msg.actionLink && (
-                                        <div className="pt-1.5">
-                                            <Link
-                                                href={msg.actionLink.url}
-                                                onClick={onClose}
-                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-zinc-950 transition shadow-xs"
-                                            >
-                                                <span>{msg.actionLink.label}</span>
-                                                <ArrowRight className="w-3.5 h-3.5" />
-                                            </Link>
-                                        </div>
-                                    )}
+                                    {msg.actionLink && (() => {
+                                        let targetUrl = msg.actionLink.url;
+                                        let targetLabel = msg.actionLink.label;
+                                        if (targetUrl === '/dashboard' && !isOwnerOrManager) {
+                                            if (userRole === 'kasir') {
+                                                targetUrl = '/kasir';
+                                                targetLabel = 'Buka POS Kasir';
+                                            } else if (['barista', 'kitchen', 'dapur'].includes(userRole)) {
+                                                targetUrl = '/kds';
+                                                targetLabel = 'Buka KDS Bar & Dapur';
+                                            } else {
+                                                targetUrl = '/';
+                                                targetLabel = 'Buka Beranda Kafe';
+                                            }
+                                        }
+                                        return (
+                                            <div className="pt-1.5">
+                                                <Link
+                                                    href={targetUrl}
+                                                    onClick={onClose}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-zinc-950 transition shadow-xs"
+                                                >
+                                                    <span>{targetLabel}</span>
+                                                    <ArrowRight className="w-3.5 h-3.5" />
+                                                </Link>
+                                            </div>
+                                        );
+                                    })()}
 
                                     <div className={`text-[10px] font-mono text-right ${isUser ? 'text-zinc-300 dark:text-emerald-100' : 'text-zinc-400'}`}>
                                         {msg.timestamp}

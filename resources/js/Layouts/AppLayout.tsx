@@ -384,6 +384,8 @@ export default function AppLayout({ children }: PropsWithChildren) {
     };
 
     const userRole = getRoleSlug();
+    const isOwnerOrManager = ['owner', 'manager'].includes(userRole);
+    const brandHomeHref = isOwnerOrManager ? '/dashboard' : (userRole === 'kasir' ? '/kasir' : (['barista', 'kitchen', 'dapur'].includes(userRole) ? '/kds' : '/'));
     const displayName = auth?.user?.nama || auth?.user?.name || 'Owner Jelang Hari';
     const displayRole = typeof auth?.user?.role === 'string' 
         ? auth.user.role 
@@ -503,7 +505,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
                     
                     {/* Brand Logo & Breadcrumb Info */}
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                        <Link href="/dashboard" className="flex items-center gap-2 sm:gap-2.5 group min-w-0 shrink-0">
+                        <Link href={brandHomeHref} className="flex items-center gap-2 sm:gap-2.5 group min-w-0 shrink-0">
                             <img
                                 src="/images/logo.png"
                                 alt="Jelang Hari"

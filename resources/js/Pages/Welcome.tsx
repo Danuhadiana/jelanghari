@@ -1555,9 +1555,21 @@ export default function Welcome({
 
                         <div className="flex items-center gap-1 shrink-0">
                           <Link
-                            href={userRole === 'owner' || userRole === 'manager' ? '/dashboard' : '/user/dashboard'}
+                            href={
+                              userRole === 'owner' || userRole === 'manager' 
+                                ? '/dashboard' 
+                                : (['barista', 'kitchen', 'dapur'].includes(userRole) 
+                                    ? '/kds' 
+                                    : (userRole === 'kasir' ? '/kasir' : '/user/dashboard'))
+                            }
                             className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
-                            title={userRole === 'owner' || userRole === 'manager' ? 'Buka Dashboard Admin' : 'Buka Dashboard Member'}
+                            title={
+                              userRole === 'owner' || userRole === 'manager' 
+                                ? 'Buka Dashboard Admin' 
+                                : (['barista', 'kitchen', 'dapur'].includes(userRole) 
+                                    ? 'Buka Kitchen Display (KDS)' 
+                                    : (userRole === 'kasir' ? 'Buka POS Kasir' : 'Buka Dashboard Member'))
+                            }
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </Link>
@@ -1600,19 +1612,39 @@ export default function Welcome({
 
                       {/* 2. Quick Action Bar (Poin, Panduan, Settings Tema) */}
                       <div className="grid grid-cols-3 gap-1.5">
-                        {/* Poin CRM */}
+                        {/* Poin CRM / Quick Workspace Action */}
                         <Link
-                          href={userRole === 'owner' || userRole === 'manager' ? '/customer' : '/user/dashboard'}
+                          href={
+                            userRole === 'owner' || userRole === 'manager' 
+                              ? '/customer' 
+                              : (['barista', 'kitchen', 'dapur'].includes(userRole) 
+                                  ? '/kds' 
+                                  : (userRole === 'kasir' ? '/kasir' : '/user/dashboard'))
+                          }
                           onClick={() => setProfileDropdownOpen(false)}
                           className="flex items-center justify-between px-2 py-1.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800/60 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-xs transition group min-w-0"
-                          title="Akses Sistem Poin & Member"
+                          title={
+                            userRole === 'owner' || userRole === 'manager' 
+                              ? 'Akses Sistem Poin & Member' 
+                              : (['barista', 'kitchen', 'dapur'].includes(userRole) 
+                                  ? 'Buka Monitor Kitchen KDS' 
+                                  : (userRole === 'kasir' ? 'Buka Kasir POS' : 'Akses Sistem Poin & Member'))
+                          }
                         >
                           <div className="flex items-center gap-1 min-w-0">
-                            <Sparkles className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 shrink-0" />
-                            <span className="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 truncate">Poin</span>
+                            {['barista', 'kitchen', 'dapur'].includes(userRole) ? (
+                              <Tv className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 shrink-0" />
+                            ) : userRole === 'kasir' ? (
+                              <ShoppingBag className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 shrink-0" />
+                            ) : (
+                              <Sparkles className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 shrink-0" />
+                            )}
+                            <span className="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                              {['barista', 'kitchen', 'dapur'].includes(userRole) ? 'KDS' : (userRole === 'kasir' ? 'Kasir' : 'Poin')}
+                            </span>
                           </div>
                           <span className="text-[9px] font-semibold px-1 py-0.2 rounded bg-zinc-200 dark:bg-zinc-700/70 text-zinc-700 dark:text-zinc-300 shrink-0">
-                            {userRole === 'owner' || userRole === 'manager' ? 'CRM' : `${customerPoin || 0}`}
+                            {userRole === 'owner' || userRole === 'manager' ? 'CRM' : (['barista', 'kitchen', 'dapur'].includes(userRole) ? 'Live' : (userRole === 'kasir' ? 'POS' : `${customerPoin || 0}`))}
                           </span>
                         </Link>
 
@@ -2681,12 +2713,28 @@ export default function Welcome({
                   <span className="text-[10px] text-zinc-500 dark:text-zinc-400 block truncate">
                     Akun: <strong className="text-zinc-900 dark:text-white">{userName}</strong>
                   </span>
-                  {userRole !== 'pelanggan' && (
+                  {(userRole === 'owner' || userRole === 'manager') && (
                     <a
                       href="/dashboard"
                       className="block text-center py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] transition"
                     >
                       Dashboard Manajemen
+                    </a>
+                  )}
+                  {(userRole === 'barista' || userRole === 'kitchen' || userRole === 'dapur') && (
+                    <a
+                      href="/kds"
+                      className="block text-center py-1.5 px-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold text-[10px] transition"
+                    >
+                      Kitchen &amp; Barista KDS
+                    </a>
+                  )}
+                  {userRole === 'kasir' && (
+                    <a
+                      href="/kasir"
+                      className="block text-center py-1.5 px-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-bold text-[10px] transition"
+                    >
+                      Buka POS Kasir
                     </a>
                   )}
                 </div>

@@ -37,6 +37,8 @@ export default function KasirLayout({
     children 
 }: PropsWithChildren<KasirLayoutProps>) {
     const { auth } = usePage<any>().props;
+    const userRole = (typeof auth?.user?.role === 'string' ? auth.user.role : (auth?.user?.role_slug || auth?.user?.role?.slug || '')).toLowerCase();
+    const isOwnerOrManager = ['owner', 'manager'].includes(userRole);
     const [currentTime, setCurrentTime] = useState('');
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -145,12 +147,12 @@ export default function KasirLayout({
                 {/* ── Left: Back & Brand ── */}
                 <div className="flex items-center gap-2 sm:gap-3">
                     <Link
-                        href="/dashboard"
-                        title="Kembali ke Dashboard"
+                        href={isOwnerOrManager ? '/dashboard' : '/'}
+                        title={isOwnerOrManager ? 'Kembali ke Dashboard' : 'Kembali ke Beranda Kafe'}
                         className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition text-xs font-semibold"
                     >
                         <ArrowLeft className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Dashboard</span>
+                        <span className="hidden sm:inline">{isOwnerOrManager ? 'Dashboard' : 'Beranda'}</span>
                     </Link>
 
                     <div className="h-4 w-[1px] bg-zinc-300 dark:bg-zinc-700 mx-0.5 hidden sm:block" />
@@ -427,14 +429,25 @@ export default function KasirLayout({
                                         <span className="text-[10px] text-zinc-400 capitalize">{isDarkMode ? 'Gelap' : 'Terang'}</span>
                                     </button>
 
-                                    <Link
-                                        href="/dashboard"
-                                        onClick={() => setProfileDropdownOpen(false)}
-                                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition font-medium"
-                                    >
-                                        <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
-                                        <span>Dashboard Toko</span>
-                                    </Link>
+                                    {isOwnerOrManager ? (
+                                        <Link
+                                            href="/dashboard"
+                                            onClick={() => setProfileDropdownOpen(false)}
+                                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition font-medium"
+                                        >
+                                            <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
+                                            <span>Dashboard Toko</span>
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            href="/"
+                                            onClick={() => setProfileDropdownOpen(false)}
+                                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition font-medium"
+                                        >
+                                            <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
+                                            <span>Beranda Kafe</span>
+                                        </Link>
+                                    )}
 
                                     <button
                                         type="button"
