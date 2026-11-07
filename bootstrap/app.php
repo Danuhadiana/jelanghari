@@ -71,10 +71,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
 
 if ($isServerless) {
     $app->useStoragePath('/tmp/storage');
-    $app->instance('path.storage', '/tmp/storage');
-    $app['config']->set('view.compiled', '/tmp/storage/framework/views');
-    $app['config']->set('session.files', '/tmp/storage/framework/sessions');
-    $app['config']->set('cache.stores.file.path', '/tmp/storage/framework/cache/data');
 }
 
 return $app;
