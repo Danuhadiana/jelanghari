@@ -35,12 +35,17 @@ try {
         @copy($sourceDb, $tmpDb);
     }
 
-    // Force serverless environment variables
+    // Force serverless environment variables into putenv, $_ENV, and $_SERVER
     $serverlessEnv = [
         'VERCEL' => '1',
         'APP_ENV' => 'production',
         'APP_DEBUG' => 'true',
         'APP_KEY' => 'base64:Dhb0DE+5YoePplvyJHOliLK++W72OxsnuCpjB620hJc=',
+        'APP_CONFIG_CACHE' => '/tmp/config.php',
+        'APP_EVENTS_CACHE' => '/tmp/events.php',
+        'APP_PACKAGES_CACHE' => '/tmp/packages.php',
+        'APP_ROUTES_CACHE' => '/tmp/routes.php',
+        'APP_SERVICES_CACHE' => '/tmp/services.php',
         'DB_CONNECTION' => 'sqlite',
         'DB_DATABASE' => $tmpDb,
         'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
