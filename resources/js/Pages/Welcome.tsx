@@ -2543,13 +2543,11 @@ export default function Welcome({
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Status Operasional</span>
                 {isStoreOpen ? (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse" />
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">
                     Buka Sekarang
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-500/40 text-red-700 dark:text-red-400 font-bold text-[10px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 dark:bg-red-400 animate-ping" />
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-500/40 text-red-700 dark:text-red-400 font-bold text-[10px]">
                     Sedang Tutup
                   </span>
                 )}
