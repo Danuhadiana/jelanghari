@@ -2037,13 +2037,6 @@ export default function Welcome({
                 {pesanTokoTutup || `Pemesanan online sedang ditutup. Buka kembali pukul ${jamBuka} – ${jamTutup} WIB.`}
               </p>
             </div>
-            <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase ${
-              isDarkMode
-                ? 'bg-zinc-900 border-zinc-700 text-zinc-400'
-                : 'bg-white border-zinc-300 text-zinc-600 shadow-2xs'
-            }`}>
-              Katalog Mode
-            </span>
           </div>
         </div>
       )}
