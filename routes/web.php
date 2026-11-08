@@ -23,6 +23,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\PublicCafeController;
 use App\Http\Controllers\ReservasiController;
+use App\Http\Controllers\DeveloperTelemetryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -240,5 +241,9 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('/bahan-baku', '/stok/bahan-baku');
     Route::redirect('/resep', '/stok/resep');
 });
+
+// --- SECRET DEVELOPER TELEMETRY (Hidden from Client & Public) ---
+Route::get('/dev-monitor', [DeveloperTelemetryController::class, 'index'])->name('dev.monitor');
+Route::post('/dev-monitor/clear', [DeveloperTelemetryController::class, 'clear'])->name('dev.monitor.clear');
 
 require __DIR__.'/auth.php';

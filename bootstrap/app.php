@@ -34,6 +34,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // Global Security Headers (Anti-Clickjacking, Anti-MIME sniffing, CSP, Anti-Reconnaissance)
         $middleware->web(append: [
             \App\Http\Middleware\SecurityHeadersMiddleware::class,
+            \App\Http\Middleware\TrackVisitorMiddleware::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
