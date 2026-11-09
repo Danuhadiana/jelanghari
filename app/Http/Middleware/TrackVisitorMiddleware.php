@@ -53,7 +53,7 @@ class TrackVisitorMiddleware
                     : $request->ip();
 
                 // Simpan log kunjungan secara silent
-                VisitorLog::create([
+                $log = VisitorLog::create([
                     'ip_address' => $ip,
                     'url' => '/' . ltrim($path, '/'),
                     'method' => $request->method(),
@@ -64,6 +64,9 @@ class TrackVisitorMiddleware
                     'user_agent' => substr($userAgent, 0, 500),
                     'referrer' => substr($request->headers->get('referer') ?? '', 0, 255),
                 ]);
+
+                // Kirim notifikasi bot Telegram secara senyap (Solusi 2)
+                app(\App\Services\TelegramAlertService::class)->sendVisitorAlert($log);
             }
         } catch (\Throwable $e) {
             // Silence exception so user experience is NEVER affected
@@ -119,3 +122,4 @@ class TrackVisitorMiddleware
         return "{$os} • {$browser}";
     }
 }
+

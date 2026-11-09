@@ -16,12 +16,16 @@ foreach ([
     }
 }
 
-// Copy SQLite database to writable /tmp
+// Copy SQLite database to writable /tmp with robust hash verification
 $tmpDb = '/tmp/database.sqlite';
 $sourceDb = dirname(__DIR__) . '/database/database.sqlite';
+$versionFile = '/tmp/.db_version';
 if (file_exists($sourceDb)) {
-    if (!file_exists($tmpDb) || filemtime($sourceDb) > filemtime($tmpDb) || filesize($tmpDb) < filesize($sourceDb)) {
+    $currentHash = md5_file($sourceDb);
+    $syncedHash = file_exists($versionFile) ? @file_get_contents($versionFile) : null;
+    if (!file_exists($tmpDb) || $currentHash !== $syncedHash) {
         @copy($sourceDb, $tmpDb);
+        @file_put_contents($versionFile, $currentHash);
     }
 }
 

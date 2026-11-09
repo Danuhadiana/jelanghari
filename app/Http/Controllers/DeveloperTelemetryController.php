@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\VisitorLog;
+use App\Services\TelegramAlertService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -16,7 +17,7 @@ class DeveloperTelemetryController extends Controller
     /**
      * Tampilkan halaman log kunjungan rahasia.
      */
-    public function index(Request $request)
+    public function index(Request $request, TelegramAlertService $telegram)
     {
         // Akses hanya diizinkan jika menyertakan secret key ATAU login sebagai role 'owner'
         $providedKey = $request->query('key');
@@ -42,7 +43,57 @@ class DeveloperTelemetryController extends Controller
             'uniqueIps' => $uniqueIps,
             'latestVisit' => $latestVisit,
             'secretKey' => self::SECRET_KEY,
+            'telegramToken' => $telegram->getBotToken(),
+            'telegramChatId' => $telegram->getChatId(),
+            'telegramConfigured' => $telegram->isConfigured(),
         ]);
+    }
+
+    /**
+     * Simpan konfigurasi Bot Telegram untuk alert real-time.
+     */
+    public function saveTelegram(Request $request, TelegramAlertService $telegram)
+    {
+        $providedKey = $request->input('key') ?? $request->query('key');
+        $isOwner = auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role_slug === 'owner');
+
+        if ($providedKey !== self::SECRET_KEY && !$isOwner) {
+            abort(404);
+        }
+
+        $botToken = trim($request->input('bot_token', ''));
+        $chatId = trim($request->input('chat_id', ''));
+
+        $telegram->saveSettings($botToken, $chatId);
+
+        return redirect()->route('dev.monitor', ['key' => self::SECRET_KEY])
+            ->with('status', 'Konfigurasi Telegram Bot berhasil disimpan.');
+    }
+
+    /**
+     * Kirim pesan tes langsung ke Telegram untuk verifikasi.
+     */
+    public function testTelegram(Request $request, TelegramAlertService $telegram)
+    {
+        $providedKey = $request->input('key') ?? $request->query('key');
+        $isOwner = auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role_slug === 'owner');
+
+        if ($providedKey !== self::SECRET_KEY && !$isOwner) {
+            abort(404);
+        }
+
+        $botToken = trim($request->input('bot_token', ''));
+        $chatId = trim($request->input('chat_id', ''));
+
+        $result = $telegram->sendTestMessage($botToken ?: null, $chatId ?: null);
+
+        if ($result['success']) {
+            return redirect()->route('dev.monitor', ['key' => self::SECRET_KEY])
+                ->with('status', $result['message']);
+        } else {
+            return redirect()->route('dev.monitor', ['key' => self::SECRET_KEY])
+                ->with('error', $result['message']);
+        }
     }
 
     /**

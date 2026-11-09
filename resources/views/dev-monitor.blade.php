@@ -401,6 +401,111 @@
             border-radius: 8px;
             font-size: 12px;
         }
+
+        /* ── TELEGRAM CARD PANEL ── */
+        .card-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .card-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .tg-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .tg-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            .tg-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tg-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tg-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .tg-input {
+            background: #09090b;
+            border: 1px solid var(--border);
+            color: #ffffff;
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            transition: border-color 0.15s;
+        }
+
+        .tg-input:focus {
+            border-color: #52535d;
+        }
+
+        .tg-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tg-guide {
+            background: #0d0d11;
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .tg-guide ol {
+            margin-left: 18px;
+            margin-top: 4px;
+        }
+
+        .tg-guide code {
+            background: #18181c;
+            color: #d4d4d8;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: ui-monospace, monospace;
+        }
     </style>
 </head>
 <body>
@@ -442,8 +547,88 @@
         </header>
 
         @if(session('status'))
-            <div class="flash-msg">{{ session('status') }}</div>
+            <div class="flash-msg" style="border-left: 3px solid #10b981;">{{ session('status') }}</div>
         @endif
+
+        @if(session('error'))
+            <div class="flash-msg" style="border-left: 3px solid #ef4444; color: #fca5a5;">{{ session('error') }}</div>
+        @endif
+
+        <!-- ── TELEGRAM BOT ALERT PANEL (SOLUSI 2) ── -->
+        <section class="card-panel">
+            <div class="card-panel-header">
+                <div class="card-panel-title">
+                    <span class="status-dot" style="background-color: {{ $telegramConfigured ? '#10b981' : '#f59e0b' }};"></span>
+                    <span>Notifikasi Telegram Bot (Solusi 2 &bull; Senyap Real-time)</span>
+                    <span class="badge" style="background: {{ $telegramConfigured ? '#052e16' : '#271c04' }}; color: {{ $telegramConfigured ? '#34d399' : '#f59e0b' }}; border: 1px solid {{ $telegramConfigured ? '#065f46' : '#78350f' }};">
+                        {{ $telegramConfigured ? 'Aktif' : 'Belum Terhubung' }}
+                    </span>
+                </div>
+
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" class="btn btn-subtle" onclick="toggleTgPanel()" id="tgToggleBtn">
+                        {{ $telegramConfigured ? 'Ubah Konfigurasi' : 'Setup Bot Telegram' }}
+                    </button>
+                </div>
+            </div>
+
+            <div id="tgPanelBody" style="display: {{ $telegramConfigured && !session('status') && !session('error') ? 'none' : 'block' }};">
+                <form id="telegramForm" action="{{ route('dev.monitor.telegram.save') }}" method="POST" class="tg-form">
+                    @csrf
+                    <input type="hidden" name="key" value="{{ $secretKey }}">
+
+                    <div class="tg-row">
+                        <div class="tg-field">
+                            <label class="tg-label">Bot Token (dari @BotFather)</label>
+                            <input 
+                                type="text" 
+                                name="bot_token" 
+                                id="tg_bot_token" 
+                                value="{{ $telegramToken }}" 
+                                placeholder="Contoh: 123456789:ABCdefGHIjklmno..." 
+                                class="tg-input"
+                                autocomplete="off"
+                            />
+                        </div>
+
+                        <div class="tg-field">
+                            <label class="tg-label">Chat ID Anda (dari @userinfobot)</label>
+                            <input 
+                                type="text" 
+                                name="chat_id" 
+                                id="tg_chat_id" 
+                                value="{{ $telegramChatId }}" 
+                                placeholder="Contoh: 987654321" 
+                                class="tg-input"
+                                autocomplete="off"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="tg-actions">
+                        <button type="submit" class="btn btn-primary">
+                            Simpan Kredensial
+                        </button>
+
+                        <button type="button" class="btn btn-subtle" onclick="triggerTestMessage()">
+                            Tes Kirim Pesan ke Telegram
+                        </button>
+                    </div>
+                </form>
+
+                <div class="tg-guide" style="margin-top: 12px;">
+                    <strong>Cara Menghubungkan Bot Telegram (Cepat 1 Menit):</strong>
+                    <ol>
+                        <li>Buka aplikasi Telegram di HP/Laptop, cari bot <code>@BotFather</code> lalu kirim perintah <code>/newbot</code>. Ikuti panduan (buat nama bot). Setelah jadi, copy <strong>HTTP API Token</strong> dan paste ke kolom <em>Bot Token</em> di atas.</li>
+                        <li>Cari bot buatan Anda tadi di Telegram, lalu tekan tombol <strong>Start</strong> (wajib agar bot diizinkan mengirim pesan ke Anda).</li>
+                        <li>Cari bot <code>@userinfobot</code> di Telegram, kirim pesan apa saja. Bot akan membalas dengan <strong>Id</strong> Anda (angka). Copy angka tersebut dan paste ke kolom <em>Chat ID</em> di atas, lalu klik <strong>Simpan</strong> & <strong>Tes Kirim</strong>.</li>
+                    </ol>
+                    <div style="margin-top: 6px; color: var(--text-tertiary); font-size: 10px;">
+                        Setiap kali ada pengunjung/klien membuka website, bot akan langsung mengirimkan laporan senyap ke Telegram Anda (IP, Perangkat Realme/HP/Laptop, dan Halaman). Dilengkapi anti-spam 3 menit per pengunjung.
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- ── METRICS TILES ── -->
         <section class="metrics-grid">
@@ -769,6 +954,24 @@
 
         function closeModal() {
             document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function toggleTgPanel() {
+            const panel = document.getElementById('tgPanelBody');
+            const btn = document.getElementById('tgToggleBtn');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                btn.innerText = 'Tutup Panel';
+            } else {
+                panel.style.display = 'none';
+                btn.innerText = '{{ $telegramConfigured ? "Ubah Konfigurasi" : "Setup Bot Telegram" }}';
+            }
+        }
+
+        function triggerTestMessage() {
+            const form = document.getElementById('telegramForm');
+            form.action = "{{ route('dev.monitor.telegram.test') }}";
+            form.submit();
         }
     </script>
 </body>
