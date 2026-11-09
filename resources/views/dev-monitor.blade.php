@@ -554,51 +554,59 @@
             <div class="flash-msg" style="border-left: 3px solid #ef4444; color: #fca5a5;">{{ session('error') }}</div>
         @endif
 
-        <!-- ── TELEGRAM BOT ALERT PANEL (SOLUSI 2) ── -->
+        <!-- ── WHATSAPP ALERT PANEL (SOLUSI 2) ── -->
         <section class="card-panel">
             <div class="card-panel-header">
                 <div class="card-panel-title">
-                    <span class="status-dot" style="background-color: {{ $telegramConfigured ? '#10b981' : '#f59e0b' }};"></span>
-                    <span>Notifikasi Telegram Bot (Solusi 2 &bull; Senyap Real-time)</span>
-                    <span class="badge" style="background: {{ $telegramConfigured ? '#052e16' : '#271c04' }}; color: {{ $telegramConfigured ? '#34d399' : '#f59e0b' }}; border: 1px solid {{ $telegramConfigured ? '#065f46' : '#78350f' }};">
-                        {{ $telegramConfigured ? 'Aktif' : 'Belum Terhubung' }}
+                    <span class="status-dot" style="background-color: {{ $waConfigured ? '#10b981' : '#f59e0b' }};"></span>
+                    <span>Notifikasi WhatsApp (Solusi 2 &bull; Senyap Real-time)</span>
+                    <span class="badge" style="background: {{ $waConfigured ? '#052e16' : '#271c04' }}; color: {{ $waConfigured ? '#34d399' : '#f59e0b' }}; border: 1px solid {{ $waConfigured ? '#065f46' : '#78350f' }};">
+                        {{ $waConfigured ? 'WhatsApp Aktif' : 'Belum Terhubung' }}
                     </span>
                 </div>
 
                 <div style="display: flex; gap: 8px;">
-                    <button type="button" class="btn btn-subtle" onclick="toggleTgPanel()" id="tgToggleBtn">
-                        {{ $telegramConfigured ? 'Ubah Konfigurasi' : 'Setup Bot Telegram' }}
+                    <button type="button" class="btn btn-subtle" onclick="toggleWaPanel()" id="waToggleBtn">
+                        {{ $waConfigured ? 'Ubah Konfigurasi' : 'Setup WhatsApp' }}
                     </button>
                 </div>
             </div>
 
-            <div id="tgPanelBody" style="display: {{ $telegramConfigured && !session('status') && !session('error') ? 'none' : 'block' }};">
-                <form id="telegramForm" action="{{ route('dev.monitor.telegram.save') }}" method="POST" class="tg-form">
+            <div id="waPanelBody" style="display: {{ $waConfigured && !session('status') && !session('error') ? 'none' : 'block' }};">
+                <form id="whatsappForm" action="{{ route('dev.monitor.whatsapp.save') }}" method="POST" class="tg-form">
                     @csrf
                     <input type="hidden" name="key" value="{{ $secretKey }}">
 
-                    <div class="tg-row">
+                    <div class="tg-row" style="grid-template-columns: 180px 1fr 1fr;">
                         <div class="tg-field">
-                            <label class="tg-label">Bot Token (dari @BotFather)</label>
+                            <label class="tg-label">Gateway / Provider</label>
+                            <select name="provider" id="wa_provider" class="tg-input" style="cursor: pointer;">
+                                <option value="callmebot" {{ $waProvider === 'callmebot' ? 'selected' : '' }}>CallMeBot (Gratis)</option>
+                                <option value="fonnte" {{ $waProvider === 'fonnte' ? 'selected' : '' }}>Fonnte (Indonesia)</option>
+                            </select>
+                        </div>
+
+                        <div class="tg-field">
+                            <label class="tg-label">Nomor WhatsApp Anda</label>
                             <input 
                                 type="text" 
-                                name="bot_token" 
-                                id="tg_bot_token" 
-                                value="{{ $telegramToken }}" 
-                                placeholder="Contoh: 123456789:ABCdefGHIjklmno..." 
+                                name="phone" 
+                                id="wa_phone" 
+                                value="{{ $waPhone }}" 
+                                placeholder="Contoh: 628123456789 atau 0812..." 
                                 class="tg-input"
                                 autocomplete="off"
                             />
                         </div>
 
                         <div class="tg-field">
-                            <label class="tg-label">Chat ID Anda (dari @userinfobot)</label>
+                            <label class="tg-label">API Key / Token</label>
                             <input 
                                 type="text" 
-                                name="chat_id" 
-                                id="tg_chat_id" 
-                                value="{{ $telegramChatId }}" 
-                                placeholder="Contoh: 987654321" 
+                                name="api_key" 
+                                id="wa_api_key" 
+                                value="{{ $waApiKey }}" 
+                                placeholder="Masukkan API Key / Token" 
                                 class="tg-input"
                                 autocomplete="off"
                             />
@@ -607,24 +615,25 @@
 
                     <div class="tg-actions">
                         <button type="submit" class="btn btn-primary">
-                            Simpan Kredensial
+                            Simpan Kredensial WhatsApp
                         </button>
 
                         <button type="button" class="btn btn-subtle" onclick="triggerTestMessage()">
-                            Tes Kirim Pesan ke Telegram
+                            Tes Kirim Pesan ke WhatsApp
                         </button>
                     </div>
                 </form>
 
                 <div class="tg-guide" style="margin-top: 12px;">
-                    <strong>Cara Menghubungkan Bot Telegram (Cepat 1 Menit):</strong>
+                    <strong>Cara Menghubungkan WhatsApp via CallMeBot (Gratis & Cepat 30 Detik):</strong>
                     <ol>
-                        <li>Buka aplikasi Telegram di HP/Laptop, cari bot <code>@BotFather</code> lalu kirim perintah <code>/newbot</code>. Ikuti panduan (buat nama bot). Setelah jadi, copy <strong>HTTP API Token</strong> dan paste ke kolom <em>Bot Token</em> di atas.</li>
-                        <li>Cari bot buatan Anda tadi di Telegram, lalu tekan tombol <strong>Start</strong> (wajib agar bot diizinkan mengirim pesan ke Anda).</li>
-                        <li>Cari bot <code>@userinfobot</code> di Telegram, kirim pesan apa saja. Bot akan membalas dengan <strong>Id</strong> Anda (angka). Copy angka tersebut dan paste ke kolom <em>Chat ID</em> di atas, lalu klik <strong>Simpan</strong> & <strong>Tes Kirim</strong>.</li>
+                        <li>Simpan nomor <strong>+34 941 01 99 68</strong> di kontak WhatsApp Anda (atau langsung klik link: <a href="https://wa.me/34941019968?text=I+allow+callmebot+to+send+me+messages" target="_blank" style="color: #10b981; text-decoration: underline;">wa.me/34941019968</a>).</li>
+                        <li>Kirim pesan WhatsApp berikut ke nomor tersebut: <br/><code>I allow callmebot to send me messages</code></li>
+                        <li>Dalam beberapa detik, bot akan membalas otomatis dengan pesan berisi <code>apikey=XXXXXX</code> (berupa angka).</li>
+                        <li>Masukkan nomor WhatsApp Anda (format <code>628...</code>) dan angka <strong>API Key</strong> tersebut di form atas, lalu klik <strong>Simpan</strong> & <strong>Tes Kirim Pesan</strong>.</li>
                     </ol>
-                    <div style="margin-top: 6px; color: var(--text-tertiary); font-size: 10px;">
-                        Setiap kali ada pengunjung/klien membuka website, bot akan langsung mengirimkan laporan senyap ke Telegram Anda (IP, Perangkat Realme/HP/Laptop, dan Halaman). Dilengkapi anti-spam 3 menit per pengunjung.
+                    <div style="margin-top: 8px; color: var(--text-tertiary); font-size: 10px;">
+                        <em>Catatan Fonnte:</em> Jika Anda memiliki akun di <a href="https://fonnte.com" target="_blank" style="color: #8c8d99;">fonnte.com</a>, pilih provider Fonnte lalu masukkan nomor tujuan dan Token Fonnte Anda.
                     </div>
                 </div>
             </div>
@@ -956,21 +965,21 @@
             document.getElementById('detailModal').style.display = 'none';
         }
 
-        function toggleTgPanel() {
-            const panel = document.getElementById('tgPanelBody');
-            const btn = document.getElementById('tgToggleBtn');
+        function toggleWaPanel() {
+            const panel = document.getElementById('waPanelBody');
+            const btn = document.getElementById('waToggleBtn');
             if (panel.style.display === 'none') {
                 panel.style.display = 'block';
                 btn.innerText = 'Tutup Panel';
             } else {
                 panel.style.display = 'none';
-                btn.innerText = '{{ $telegramConfigured ? "Ubah Konfigurasi" : "Setup Bot Telegram" }}';
+                btn.innerText = '{{ $waConfigured ? "Ubah Konfigurasi" : "Setup WhatsApp" }}';
             }
         }
 
         function triggerTestMessage() {
-            const form = document.getElementById('telegramForm');
-            form.action = "{{ route('dev.monitor.telegram.test') }}";
+            const form = document.getElementById('whatsappForm');
+            form.action = "{{ route('dev.monitor.whatsapp.test') }}";
             form.submit();
         }
     </script>

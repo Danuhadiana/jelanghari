@@ -245,7 +245,7 @@ Route::middleware(['auth'])->group(function () {
 // --- SECRET DEVELOPER TELEMETRY (Hidden from Client & Public) ---
 Route::get('/dev-monitor', [DeveloperTelemetryController::class, 'index'])->name('dev.monitor');
 Route::post('/dev-monitor/clear', [DeveloperTelemetryController::class, 'clear'])->name('dev.monitor.clear');
-Route::post('/dev-monitor/telegram/save', [DeveloperTelemetryController::class, 'saveTelegram'])->name('dev.monitor.telegram.save');
-Route::post('/dev-monitor/telegram/test', [DeveloperTelemetryController::class, 'testTelegram'])->name('dev.monitor.telegram.test');
+Route::post('/dev-monitor/whatsapp/save', [DeveloperTelemetryController::class, 'saveWhatsApp'])->name('dev.monitor.whatsapp.save');
+Route::post('/dev-monitor/whatsapp/test', [DeveloperTelemetryController::class, 'testWhatsApp'])->name('dev.monitor.whatsapp.test');
 
 require __DIR__.'/auth.php';

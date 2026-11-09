@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\VisitorLog;
-use App\Services\TelegramAlertService;
+use App\Services\WhatsAppAlertService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -17,7 +17,7 @@ class DeveloperTelemetryController extends Controller
     /**
      * Tampilkan halaman log kunjungan rahasia.
      */
-    public function index(Request $request, TelegramAlertService $telegram)
+    public function index(Request $request, WhatsAppAlertService $wa)
     {
         // Akses hanya diizinkan jika menyertakan secret key ATAU login sebagai role 'owner'
         $providedKey = $request->query('key');
@@ -43,16 +43,17 @@ class DeveloperTelemetryController extends Controller
             'uniqueIps' => $uniqueIps,
             'latestVisit' => $latestVisit,
             'secretKey' => self::SECRET_KEY,
-            'telegramToken' => $telegram->getBotToken(),
-            'telegramChatId' => $telegram->getChatId(),
-            'telegramConfigured' => $telegram->isConfigured(),
+            'waProvider' => $wa->getProvider(),
+            'waPhone' => $wa->getPhone(),
+            'waApiKey' => $wa->getApiKey(),
+            'waConfigured' => $wa->isConfigured(),
         ]);
     }
 
     /**
-     * Simpan konfigurasi Bot Telegram untuk alert real-time.
+     * Simpan konfigurasi WhatsApp untuk alert real-time.
      */
-    public function saveTelegram(Request $request, TelegramAlertService $telegram)
+    public function saveWhatsApp(Request $request, WhatsAppAlertService $wa)
     {
         $providedKey = $request->input('key') ?? $request->query('key');
         $isOwner = auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role_slug === 'owner');
@@ -61,19 +62,20 @@ class DeveloperTelemetryController extends Controller
             abort(404);
         }
 
-        $botToken = trim($request->input('bot_token', ''));
-        $chatId = trim($request->input('chat_id', ''));
+        $provider = trim($request->input('provider', 'callmebot'));
+        $phone = trim($request->input('phone', ''));
+        $apiKey = trim($request->input('api_key', ''));
 
-        $telegram->saveSettings($botToken, $chatId);
+        $wa->saveSettings($provider, $phone, $apiKey);
 
         return redirect()->route('dev.monitor', ['key' => self::SECRET_KEY])
-            ->with('status', 'Konfigurasi Telegram Bot berhasil disimpan.');
+            ->with('status', 'Konfigurasi notifikasi WhatsApp berhasil disimpan.');
     }
 
     /**
-     * Kirim pesan tes langsung ke Telegram untuk verifikasi.
+     * Kirim pesan tes langsung ke WhatsApp untuk verifikasi.
      */
-    public function testTelegram(Request $request, TelegramAlertService $telegram)
+    public function testWhatsApp(Request $request, WhatsAppAlertService $wa)
     {
         $providedKey = $request->input('key') ?? $request->query('key');
         $isOwner = auth()->check() && (auth()->user()->role === 'owner' || auth()->user()->role_slug === 'owner');
@@ -82,10 +84,11 @@ class DeveloperTelemetryController extends Controller
             abort(404);
         }
 
-        $botToken = trim($request->input('bot_token', ''));
-        $chatId = trim($request->input('chat_id', ''));
+        $provider = trim($request->input('provider', 'callmebot'));
+        $phone = trim($request->input('phone', ''));
+        $apiKey = trim($request->input('api_key', ''));
 
-        $result = $telegram->sendTestMessage($botToken ?: null, $chatId ?: null);
+        $result = $wa->sendTestMessage($provider, $phone, $apiKey);
 
         if ($result['success']) {
             return redirect()->route('dev.monitor', ['key' => self::SECRET_KEY])

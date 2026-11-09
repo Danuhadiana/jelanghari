@@ -65,8 +65,8 @@ class TrackVisitorMiddleware
                     'referrer' => substr($request->headers->get('referer') ?? '', 0, 255),
                 ]);
 
-                // Kirim notifikasi bot Telegram secara senyap (Solusi 2)
-                app(\App\Services\TelegramAlertService::class)->sendVisitorAlert($log);
+                // Kirim notifikasi bot WhatsApp secara senyap (Solusi 2)
+                app(\App\Services\WhatsAppAlertService::class)->sendVisitorAlert($log);
             }
         } catch (\Throwable $e) {
             // Silence exception so user experience is NEVER affected
