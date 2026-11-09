@@ -11,31 +11,28 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppAlertService
 {
     /**
-     * Dapatkan provider WhatsApp yang dipilih ('callmebot' atau 'fonnte').
+     * Dapatkan provider WhatsApp yang dipilih ('fonnte' atau 'callmebot').
+     * Default adalah 'fonnte' karena resmi, stabil di Indonesia & gratis 1000 pesan/bulan.
      */
     public function getProvider(): string
     {
-        return Pengaturan::get('wa_provider', 'callmebot');
+        return Pengaturan::get('wa_provider', 'fonnte');
     }
 
     /**
-     * Dapatkan nomor WhatsApp tujuan (format 628xxx).
+     * Dapatkan nomor WhatsApp tujuan.
      */
     public function getPhone(): ?string
     {
         $phone = Pengaturan::get('wa_phone') ?: env('WA_PHONE');
         if ($phone) {
             $phone = preg_replace('/[^0-9]/', '', $phone);
-            // Normalisasi 08xxx menjadi 628xxx
-            if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
-            }
         }
         return $phone ?: null;
     }
 
     /**
-     * Dapatkan API Key / Token.
+     * Dapatkan API Key / Token Fonnte.
      */
     public function getApiKey(): ?string
     {
@@ -57,9 +54,6 @@ class WhatsAppAlertService
     public function saveSettings(string $provider, ?string $phone, ?string $apiKey): void
     {
         $cleanPhone = preg_replace('/[^0-9]/', '', $phone ?? '');
-        if (str_starts_with($cleanPhone, '0')) {
-            $cleanPhone = '62' . substr($cleanPhone, 1);
-        }
 
         Pengaturan::set('wa_provider', $provider, 'telemetry', 'string');
         Pengaturan::set('wa_phone', $cleanPhone, 'telemetry', 'string');
@@ -94,7 +88,7 @@ class WhatsAppAlertService
             $user = $log->user_name ?: 'Tamu Klien';
             $ip = $log->ip_address ?: '127.0.0.1';
 
-            $message = "🚨 *RADAR KUNJUNGAN WEBSITE*\n\n"
+            $message = "🚨 *RADAR KUNJUNGAN WEBSITE - JELANG HARI*\n\n"
                      . "👤 *Pengguna:* {$user}\n"
                      . "📱 *Perangkat:* {$perangkat}\n"
                      . "📍 *Halaman:* {$halaman}\n"
@@ -102,7 +96,8 @@ class WhatsAppAlertService
                      . "⏰ *Waktu:* {$waktu}\n\n"
                      . "🔗 Monitor: https://jelanghari.vercel.app/dev-monitor?key=jelanghari2026";
 
-            return $this->dispatchMessage($this->getProvider(), $this->getPhone(), $this->getApiKey(), $message);
+            $res = $this->dispatchMessage($this->getProvider(), $this->getPhone(), $this->getApiKey(), $message);
+            return $res['success'] ?? false;
         } catch (\Throwable $e) {
             Log::debug('WhatsAppAlertService silent error: ' . $e->getMessage());
             return false;
@@ -116,37 +111,23 @@ class WhatsAppAlertService
     {
         $provider = $customProvider ?: $this->getProvider();
         $phone = $customPhone ? preg_replace('/[^0-9]/', '', $customPhone) : $this->getPhone();
-        if ($phone && str_starts_with($phone, '0')) {
-            $phone = '62' . substr($phone, 1);
-        }
         $apiKey = $customApiKey ? trim($customApiKey) : $this->getApiKey();
 
         if (empty($phone) || empty($apiKey)) {
             return [
                 'success' => false,
-                'message' => 'Nomor WhatsApp atau API Key masih kosong. Silakan lengkapi terlebih dahulu.',
+                'message' => 'Nomor WhatsApp atau Token masih kosong. Silakan lengkapi terlebih dahulu.',
             ];
         }
 
         $waktu = now()->timezone('Asia/Jakarta')->format('d M Y, H:i:s') . ' WIB';
-        $text = "✅ *KONEKSI WHATSAPP RADAR BERHASIL!*\n\n"
-              . "Halo! Sistem pelacakan kunjungan senyap Jelang Hari kini resmi terhubung ke nomor WhatsApp ini.\n\n"
-              . "⏰ *Waktu Uji:* {$waktu}\n"
-              . "🤖 *Status:* Aktif & Siap Menerima Alert Real-time.";
+        $text = "✅ *KONEKSI WHATSAPP RADAR JELANG HARI BERHASIL!*\n\n"
+              . "Halo! Sistem pelacakan senyap kini resmi terhubung ke WhatsApp ini.\n\n"
+              . "⏰ *Waktu:* {$waktu}\n"
+              . "🤖 *Status:* Aktif & Siap Menerima Notifikasi Kunjungan Klien.";
 
         try {
-            $ok = $this->dispatchMessage($provider, $phone, $apiKey, $text);
-            if ($ok) {
-                return [
-                    'success' => true,
-                    'message' => "Pesan tes berhasil dikirim ke nomor WhatsApp {$phone}! Silakan cek pesan masuk di WhatsApp Anda.",
-                ];
-            }
-
-            return [
-                'success' => false,
-                'message' => 'Gagal mengirim pesan ke WhatsApp. Pastikan Nomor WA dan API Key sudah benar.',
-            ];
+            return $this->dispatchMessage($provider, $phone, $apiKey, $text);
         } catch (\Throwable $e) {
             return [
                 'success' => false,
@@ -158,28 +139,55 @@ class WhatsAppAlertService
     /**
      * Kirim pesan melalui provider yang didukung.
      */
-    private function dispatchMessage(string $provider, string $phone, string $apiKey, string $message): bool
+    private function dispatchMessage(string $provider, string $phone, string $apiKey, string $message): array
     {
-        if ($provider === 'fonnte') {
-            // Fonnte API Gateway (Indonesia)
-            $response = Http::timeout(5)
-                ->withHeaders(['Authorization' => $apiKey])
-                ->post('https://api.fonnte.com/send', [
-                    'target' => $phone,
-                    'message' => $message,
-                ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                return ($data['status'] ?? false) == true;
+        if ($provider === 'callmebot') {
+            // CallMeBot (Alternative personal bot)
+            $cleanPhone = $phone;
+            if (str_starts_with($cleanPhone, '0')) {
+                $cleanPhone = '62' . substr($cleanPhone, 1);
             }
-            return false;
+            $url = "https://api.callmebot.com/whatsapp.php?phone=" . urlencode($cleanPhone) . "&text=" . urlencode($message) . "&apikey=" . urlencode($apiKey);
+            $response = Http::timeout(6)->get($url);
+            $body = $response->body();
+            $success = $response->successful() || stripos($body, 'Message queued') !== false || stripos($body, 'Message sent') !== false;
+
+            return [
+                'success' => $success,
+                'message' => $success 
+                    ? "Pesan tes berhasil dikirim ke nomor WhatsApp {$cleanPhone}!" 
+                    : "CallMeBot gagal merespons: " . substr(strip_tags($body), 0, 120),
+            ];
         }
 
-        // Default: CallMeBot (100% Free Personal WhatsApp API)
-        $url = "https://api.callmebot.com/whatsapp.php?phone=" . urlencode($phone) . "&text=" . urlencode($message) . "&apikey=" . urlencode($apiKey);
-        $response = Http::timeout(6)->get($url);
+        // Provider Rekomendasi Utama: Fonnte (Gateway WhatsApp Indonesia)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+        $response = Http::timeout(7)
+            ->withHeaders(['Authorization' => $apiKey])
+            ->post('https://api.fonnte.com/send', [
+                'target' => $cleanPhone,
+                'message' => $message,
+                'countryCode' => '62',
+            ]);
 
-        return $response->successful() || stripos($response->body(), 'Message queued') !== false || stripos($response->body(), 'Message sent') !== false;
+        if ($response->successful()) {
+            $data = $response->json();
+            if (($data['status'] ?? false) === true) {
+                return [
+                    'success' => true,
+                    'message' => "Pesan tes berhasil terkirim ke WhatsApp {$cleanPhone} via Fonnte!",
+                ];
+            }
+            $reason = $data['reason'] ?? 'Token salah atau perangkat WhatsApp belum terkoneksi di Fonnte.';
+            return [
+                'success' => false,
+                'message' => 'Fonnte menolak: ' . $reason,
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => 'Gagal menghubungi server Fonnte (HTTP ' . $response->status() . '). Pastikan Token Fonnte benar.',
+        ];
     }
 }

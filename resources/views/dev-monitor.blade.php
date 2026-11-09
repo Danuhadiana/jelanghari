@@ -577,12 +577,12 @@
                     @csrf
                     <input type="hidden" name="key" value="{{ $secretKey }}">
 
-                    <div class="tg-row" style="grid-template-columns: 180px 1fr 1fr;">
+                    <div class="tg-row" style="grid-template-columns: 220px 1fr 1fr;">
                         <div class="tg-field">
                             <label class="tg-label">Gateway / Provider</label>
                             <select name="provider" id="wa_provider" class="tg-input" style="cursor: pointer;">
-                                <option value="callmebot" {{ $waProvider === 'callmebot' ? 'selected' : '' }}>CallMeBot (Gratis)</option>
-                                <option value="fonnte" {{ $waProvider === 'fonnte' ? 'selected' : '' }}>Fonnte (Indonesia)</option>
+                                <option value="fonnte" {{ $waProvider === 'fonnte' ? 'selected' : '' }}>Fonnte (Rekomendasi Indonesia)</option>
+                                <option value="callmebot" {{ $waProvider === 'callmebot' ? 'selected' : '' }}>CallMeBot (Alternatif Luar)</option>
                             </select>
                         </div>
 
@@ -593,20 +593,20 @@
                                 name="phone" 
                                 id="wa_phone" 
                                 value="{{ $waPhone }}" 
-                                placeholder="Contoh: 628123456789 atau 0812..." 
+                                placeholder="Contoh: 08123456789 atau 628..." 
                                 class="tg-input"
                                 autocomplete="off"
                             />
                         </div>
 
                         <div class="tg-field">
-                            <label class="tg-label">API Key / Token</label>
+                            <label class="tg-label">API Token Fonnte / Key</label>
                             <input 
                                 type="text" 
                                 name="api_key" 
                                 id="wa_api_key" 
                                 value="{{ $waApiKey }}" 
-                                placeholder="Masukkan API Key / Token" 
+                                placeholder="Masukkan Token Fonnte Anda" 
                                 class="tg-input"
                                 autocomplete="off"
                             />
@@ -625,15 +625,15 @@
                 </form>
 
                 <div class="tg-guide" style="margin-top: 12px;">
-                    <strong>Cara Menghubungkan WhatsApp via CallMeBot (Gratis & Cepat 30 Detik):</strong>
+                    <strong>Panduan Cepat Menghubungkan WhatsApp via Fonnte (Gratis & Paling Stabil):</strong>
                     <ol>
-                        <li>Simpan nomor <strong>+34 941 01 99 68</strong> di kontak WhatsApp Anda (atau langsung klik link: <a href="https://wa.me/34941019968?text=I+allow+callmebot+to+send+me+messages" target="_blank" style="color: #10b981; text-decoration: underline;">wa.me/34941019968</a>).</li>
-                        <li>Kirim pesan WhatsApp berikut ke nomor tersebut: <br/><code>I allow callmebot to send me messages</code></li>
-                        <li>Dalam beberapa detik, bot akan membalas otomatis dengan pesan berisi <code>apikey=XXXXXX</code> (berupa angka).</li>
-                        <li>Masukkan nomor WhatsApp Anda (format <code>628...</code>) dan angka <strong>API Key</strong> tersebut di form atas, lalu klik <strong>Simpan</strong> & <strong>Tes Kirim Pesan</strong>.</li>
+                        <li>Buka website resmi <a href="https://fonnte.com" target="_blank" style="color: #10b981; font-weight: 600; text-decoration: underline;">fonnte.com</a> lalu daftar akun gratis (tersedia kuota gratis 1.000 pesan/bulan).</li>
+                        <li>Masuk ke dashboard Fonnte, buka menu <strong>Device</strong> &rarr; klik <strong>Connect Device</strong> &rarr; lalu scan QR code menggunakan WhatsApp di HP Anda (persis seperti WhatsApp Web).</li>
+                        <li>Setelah tersambung, copy <strong>Token</strong> yang ada pada baris device Anda.</li>
+                        <li>Masukkan nomor WhatsApp Anda dan Token tersebut pada form di atas, lalu klik <strong>Simpan</strong> & <strong>Tes Kirim Pesan</strong>.</li>
                     </ol>
-                    <div style="margin-top: 8px; color: var(--text-tertiary); font-size: 10px;">
-                        <em>Catatan Fonnte:</em> Jika Anda memiliki akun di <a href="https://fonnte.com" target="_blank" style="color: #8c8d99;">fonnte.com</a>, pilih provider Fonnte lalu masukkan nomor tujuan dan Token Fonnte Anda.
+                    <div style="margin-top: 8px; color: var(--text-tertiary); font-size: 11px;">
+                        <em>Pilihan Alternatif (CallMeBot):</em> CallMeBot sering mengalami pembaruan nomor oleh pihak WhatsApp luar negeri (nomor terbarunya <code>+34 623 78 64 49</code>). Oleh karena itu, menggunakan <strong>Fonnte</strong> sangat disarankan karena menggunakan nomor WhatsApp Anda sendiri, server lokal Indonesia, dan 100% tidak pernah diblokir.
                     </div>
                 </div>
             </div>
